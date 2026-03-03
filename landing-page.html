@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Доставка грузов дронами</title>
+  <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet"/>
+  <style>
+    :root {
+      --bg: #0b0f17;
+      --surface: #131927;
+      --surface2: #1a2235;
+      --dark: #060a10;
+      --accent: #f5a623;
+      --accent2: #3b82f6;
+      --text: #e8ecf4;
+      --muted: #7a8499;
+      --font-display: 'Bebas Neue', sans-serif;
+      --font-body: 'DM Sans', sans-serif;
+      --radius: 14px;
+      --max-w: 1200px;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: var(--font-body); background: var(--bg); color: var(--text); overflow-x: hidden; }
+
+    .container { max-width: var(--max-w); margin: 0 auto; padding: 0 2rem; }
+    .section { padding: 6rem 0; }
+    .section-label {
+      display: inline-block;
+      font-size: 0.7rem; letter-spacing: 0.2em; text-transform: uppercase;
+      color: var(--accent); font-weight: 700; margin-bottom: 1.5rem;
+    }
+    h1, h2, h3 { font-family: var(--font-display); line-height: 1.05; letter-spacing: 0.02em; }
+    h1 { font-size: clamp(3.5rem, 8vw, 7rem); }
+    h2 { font-size: clamp(2.2rem, 4.5vw, 4rem); margin-bottom: 1.5rem; }
+    h3 { font-size: 1.4rem; margin-bottom: 0.75rem; }
+    p { font-size: clamp(0.95rem, 1.2vw, 1.1rem); line-height: 1.8; color: var(--muted); }
+
+    /* NAV */
+    nav {
+      position: sticky; top: 0; z-index: 100;
+      background: rgba(11,15,23,0.92); backdrop-filter: blur(16px);
+      border-bottom: 1px solid rgba(245,166,35,0.12);
+      padding: 1.1rem 2rem;
+      display: flex; align-items: center; justify-content: space-between;
+    }
+    .nav-logo { font-family: var(--font-display); font-size: 1.6rem; color: var(--text); text-decoration: none; letter-spacing: 0.05em; }
+    .nav-logo span { color: var(--accent); }
+    .nav-cta {
+      padding: 0.6rem 1.8rem; background: var(--accent); color: #000;
+      border: none; border-radius: 50px; font-family: var(--font-body);
+      font-size: 0.875rem; font-weight: 700; cursor: pointer;
+      transition: opacity 0.2s, transform 0.15s;
+    }
+    .nav-cta:hover { opacity: 0.85; transform: scale(1.03); }
+
+    /* HERO */
+    .hero {
+      min-height: 95vh; display: flex; align-items: center;
+      padding: 8rem 2rem 6rem;
+      position: relative; overflow: hidden;
+      background: radial-gradient(ellipse 80% 60% at 60% 50%, rgba(59,130,246,0.08) 0%, transparent 70%),
+                  radial-gradient(ellipse 50% 40% at 20% 80%, rgba(245,166,35,0.06) 0%, transparent 60%);
+    }
+    .hero::before {
+      content: '';
+      position: absolute; inset: 0;
+      background: url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%233b82f6' fill-opacity='0.04'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+    }
+    .hero-inner { max-width: var(--max-w); margin: 0 auto; position: relative; z-index: 1; }
+    .hero-badge {
+      display: inline-flex; align-items: center; gap: 0.5rem;
+      background: rgba(245,166,35,0.1); border: 1px solid rgba(245,166,35,0.3);
+      color: var(--accent); padding: 0.4rem 1rem; border-radius: 50px;
+      font-size: 0.78rem; font-weight: 600; letter-spacing: 0.12em; text-transform: uppercase;
+      margin-bottom: 2rem;
+    }
+    .hero h1 { margin-bottom: 1.5rem; max-width: 14ch; }
+    .hero h1 span { color: var(--accent); }
+    .hero p { font-size: clamp(1.05rem, 1.4vw, 1.25rem); max-width: 55ch; margin-bottom: 2.5rem; }
+    .hero-btns { display: flex; gap: 1rem; flex-wrap: wrap; margin-bottom: 4rem; }
+    .hero-stats {
+      display: flex; gap: 3rem; flex-wrap: wrap;
+      padding-top: 3rem; border-top: 1px solid rgba(255,255,255,0.08);
+    }
+    .hero-stat-num {
+      font-family: var(--font-display); font-size: 2.8rem; color: var(--accent); line-height: 1; display: block;
+    }
+    .hero-stat-label { font-size: 0.8rem; color: var(--muted); margin-top: 0.3rem; display: block; }
+
+    /* BUTTONS */
+    .btn-primary {
+      padding: 1rem 2.5rem; background: var(--accent); color: #000;
+      border: none; border-radius: 50px; font-family: var(--font-body);
+      font-size: 1rem; font-weight: 700; cursor: pointer;
+      box-shadow: 0 8px 30px rgba(245,166,35,0.3);
+      transition: transform 0.15s, box-shadow 0.2s;
+      display: inline-flex; align-items: center; gap: 0.5rem;
+    }
+    .btn-primary:hover { transform: translateY(-2px); box-shadow: 0 14px 40px rgba(245,166,35,0.4); }
+    .btn-secondary {
+      padding: 1rem 2.5rem; background: transparent; color: var(--text);
+      border: 1.5px solid rgba(255,255,255,0.15); border-radius: 50px;
+      font-family: var(--font-body); font-size: 1rem; font-weight: 600;
+      cursor: pointer; transition: border-color 0.2s, background 0.2s;
+      display: inline-flex; align-items: center; gap: 0.5rem;
+    }
+    .btn-secondary:hover { border-color: rgba(255,255,255,0.4); background: rgba(255,255,255,0.04); }
+
+    /* SPECS SECTION */
+    .specs-section { background: var(--surface); }
+    .specs-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3rem; margin-top: 3rem; }
+    .spec-block { background: var(--surface2); border-radius: var(--radius); padding: 2.5rem; border: 1px solid rgba(255,255,255,0.06); }
+    .spec-block h3 { color: var(--accent); font-family: var(--font-display); font-size: 1.5rem; margin-bottom: 1.5rem; letter-spacing: 0.05em; }
+    .spec-table { width: 100%; border-collapse: collapse; }
+    .spec-table tr { border-bottom: 1px solid rgba(255,255,255,0.05); }
+    .spec-table tr:last-child { border-bottom: none; }
+    .spec-table td { padding: 0.7rem 0; font-size: 0.9rem; }
+    .spec-table td:first-child { color: var(--muted); width: 50%; }
+    .spec-table td:last-child { color: var(--text); font-weight: 600; }
+
+    /* FEATURES */
+    .features-section { background: var(--bg); }
+    .cards-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 1.5rem; margin-top: 3rem; }
+    .feature-card {
+      background: var(--surface); border-radius: var(--radius);
+      padding: 2rem; border: 1px solid rgba(255,255,255,0.06);
+      transition: transform 0.2s, box-shadow 0.2s, border-color 0.2s;
+    }
+    .feature-card:hover { transform: translateY(-4px); box-shadow: 0 20px 50px rgba(0,0,0,0.3); border-color: rgba(245,166,35,0.2); }
+    .card-icon {
+      width: 52px; height: 52px; background: rgba(245,166,35,0.1); border: 1px solid rgba(245,166,35,0.25);
+      border-radius: 12px; display: flex; align-items: center; justify-content: center;
+      font-size: 1.5rem; margin-bottom: 1.25rem;
+    }
+
+    /* STATS STRIP */
+    .stats-strip { background: var(--accent); padding: 5rem 0; }
+    .stats-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 2rem; text-align: center; }
+    .stat-num { font-family: var(--font-display); font-size: clamp(3rem, 5vw, 5rem); color: #000; line-height: 1; display: block; }
+    .stat-label { color: rgba(0,0,0,0.6); font-size: 0.9rem; margin-top: 0.5rem; display: block; font-weight: 600; }
+
+    /* SCENARIOS */
+    .scenarios-section { background: var(--surface); }
+    .scenario-cards { display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 2rem; margin-top: 3rem; }
+    .scenario-card {
+      background: var(--bg); border-radius: var(--radius); padding: 2rem;
+      border: 1px solid rgba(255,255,255,0.06); position: relative; overflow: hidden;
+    }
+    .scenario-card::before {
+      content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px;
+      background: linear-gradient(90deg, var(--accent), var(--accent2));
+    }
+    .scenario-tag {
+      display: inline-block; padding: 0.25rem 0.75rem;
+      background: rgba(245,166,35,0.1); color: var(--accent);
+      border-radius: 50px; font-size: 0.72rem; font-weight: 700;
+      letter-spacing: 0.1em; text-transform: uppercase; margin-bottom: 1rem;
+    }
+    .scenario-card h3 { color: var(--text); margin-bottom: 0.75rem; }
+    .compare-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 1.5rem;
+    }
+    .compare-cell {
+      background: var(--surface); border-radius: 8px; padding: 0.75rem;
+      text-align: center; font-size: 0.8rem;
+    }
+    .compare-cell .label { color: var(--muted); font-size: 0.7rem; text-transform: uppercase; letter-spacing: 0.05em; }
+    .compare-cell .val { font-family: var(--font-display); font-size: 1.4rem; margin-top: 0.2rem; display: block; }
+    .compare-cell.good .val { color: var(--accent); }
+    .compare-cell.bad .val { color: var(--muted); }
+    .efficiency-badge {
+      margin-top: 1rem; background: rgba(59,130,246,0.1); border: 1px solid rgba(59,130,246,0.25);
+      color: var(--accent2); border-radius: 8px; padding: 0.6rem 1rem;
+      font-weight: 700; font-size: 0.85rem; text-align: center;
+    }
+
+    /* SAFETY */
+    .safety-section { background: var(--bg); }
+    .safety-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.5rem; margin-top: 3rem; }
+    .safety-item {
+      display: flex; flex-direction: column; align-items: flex-start;
+      gap: 0.75rem; padding: 1.75rem;
+      background: var(--surface); border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .safety-num { font-family: var(--font-display); font-size: 2.5rem; color: rgba(245,166,35,0.2); line-height: 1; }
+
+    /* SYSTEM STRUCTURE */
+    .system-section { background: var(--surface); }
+    .system-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.5rem; margin-top: 3rem; }
+    .system-item {
+      padding: 2rem; background: var(--bg); border-radius: var(--radius);
+      border: 1px solid rgba(255,255,255,0.06);
+    }
+    .system-item h3 { color: var(--accent2); margin-bottom: 1rem; font-size: 1.1rem; }
+    .sys-list { list-style: none; padding: 0; }
+    .sys-list li { padding: 0.4rem 0; color: var(--muted); font-size: 0.88rem; border-bottom: 1px solid rgba(255,255,255,0.04); display: flex; gap: 0.5rem; align-items: flex-start; }
+    .sys-list li::before { content: '→'; color: var(--accent); font-size: 0.75rem; margin-top: 0.1rem; flex-shrink: 0; }
+
+    /* CTA SECTION */
+    .cta-section {
+      background: linear-gradient(135deg, #1a2235 0%, #0f1620 100%);
+      border-top: 1px solid rgba(245,166,35,0.15);
+      padding: 8rem 2rem; text-align: center; position: relative; overflow: hidden;
+    }
+    .cta-section::before {
+      content: 'ДОСТАВКА';
+      position: absolute; font-family: var(--font-display); font-size: 18vw;
+      color: rgba(245,166,35,0.03); top: 50%; left: 50%; transform: translate(-50%,-50%);
+      white-space: nowrap; pointer-events: none;
+    }
+    .cta-section h2 { font-size: clamp(2.5rem, 5vw, 4.5rem); margin-bottom: 1.5rem; position: relative; }
+    .cta-section p { max-width: 52ch; margin: 0 auto 2.5rem; position: relative; }
+
+    /* FOOTER */
+    footer {
+      background: var(--dark); color: rgba(255,255,255,0.25);
+      padding: 2rem; text-align: center;
+      font-size: 0.8rem; border-top: 1px solid rgba(255,255,255,0.05);
+    }
+
+    /* ANIMATIONS */
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to   { opacity: 1; transform: translateY(0); }
+    }
+    .fade-up { animation: fadeUp 0.7s ease both; }
+    .fade-up-2 { animation: fadeUp 0.7s 0.15s ease both; }
+    .fade-up-3 { animation: fadeUp 0.7s 0.3s ease both; }
+    .fade-up-4 { animation: fadeUp 0.7s 0.45s ease both; }
+
+    @keyframes pulse-ring {
+      0% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245,166,35,0.4); }
+      70% { transform: scale(1); box-shadow: 0 0 0 15px rgba(245,166,35,0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(245,166,35,0); }
+    }
+    .pulse { animation: pulse-ring 2.5s infinite; }
+
+    @media (max-width: 768px) {
+      .hero { min-height: 80vh; padding: 5rem 1.5rem 4rem; }
+      .section { padding: 4rem 0; }
+      .specs-grid { grid-template-columns: 1fr; }
+      .hero-stats { gap: 2rem; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- NAV -->
+<nav>
+  <a href="#" class="nav-logo">DRONE<span>ЛОГИСТИКА</span></a>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-inner">
+    <div class="hero-badge fade-up">🚁 Низкоатмосферная логистика нового поколения</div>
+    <h1 class="fade-up-2">ДОСТАВКА <span>ДРОНАМИ</span> БЕЗ ГРАНИЦ</h1>
+    <p class="fade-up-3">Умное решение конечной логистики: беспилотная доставка грузов с покрытием до 20 км, умные приёмные шкафы и 24/7 автоматизация без участия оператора.</p>
+    <div class="hero-stats fade-up-4">
+      <div>
+        <span class="hero-stat-num">20 км</span>
+        <span class="hero-stat-label">Радиус покрытия одного дрона</span>
+      </div>
+      <div>
+        <span class="hero-stat-num">10 кг</span>
+        <span class="hero-stat-label">Грузоподъёмность</span>
+      </div>
+      <div>
+        <span class="hero-stat-num">24/7</span>
+        <span class="hero-stat-label">Автономная работа</span>
+      </div>
+      <div>
+        <span class="hero-stat-num">5G+</span>
+        <span class="hero-stat-label">Облачный мониторинг</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- STATS STRIP -->
+<section class="stats-strip">
+  <div class="container">
+    <div class="stats-grid">
+      <div>
+        <span class="stat-num">74.2%</span>
+        <span class="stat-label">Прирост эффективности (острова)</span>
+      </div>
+      <div>
+        <span class="stat-num">65.6%</span>
+        <span class="stat-label">Прирост эффективности (сельский)</span>
+      </div>
+      <div>
+        <span class="stat-num">100мс</span>
+        <span class="stat-label">Задержка в городской сети</span>
+      </div>
+      <div>
+        <span class="stat-num">4500м</span>
+        <span class="stat-label">Максимальная высота взлёта</span>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SPECS -->
+<section class="section specs-section">
+  <div class="container">
+    <span class="section-label">Технические характеристики</span>
+    <h2>Инженерное совершенство</h2>
+    <div class="specs-grid">
+      <!-- Drone specs -->
+      <div class="spec-block">
+        <h3>🚁 Дрон DL-900</h3>
+        <table class="spec-table">
+          <tr><td>Размах (развёрнутый)</td><td>750×800×700 мм</td></tr>
+          <tr><td>Колёсная база</td><td>900 мм</td></tr>
+          <tr><td>Материал корпуса</td><td>Авиационный карбон</td></tr>
+          <tr><td>Тип двигателя</td><td>Полностью электрический</td></tr>
+          <tr><td>Грузоподъёмность</td><td>8 кг</td></tr>
+          <tr><td>Макс. взлётная масса</td><td>24,5 кг</td></tr>
+          <tr><td>Крейсерская скорость</td><td>12–16 м/с</td></tr>
+          <tr><td>Время полёта (без нагрузки)</td><td>70 минут</td></tr>
+          <tr><td>Время полёта с нагрузкой</td><td>40 мин (30 км)</td></tr>
+          <tr><td>Макс. скорость</td><td>19 м/с</td></tr>
+          <tr><td>Скорость подъёма</td><td>4–6 м/с</td></tr>
+          <tr><td>Макс. высота взлёта</td><td>4500 м</td></tr>
+          <tr><td>Ветроустойчивость</td><td>Уровень 7</td></tr>
+        </table>
+      </div>
+      <!-- Locker specs -->
+      <div class="spec-block">
+        <h3>📦 Умный приёмный шкаф</h3>
+        <table class="spec-table">
+          <tr><td>Размер корпуса</td><td>1800×1800×2500 мм</td></tr>
+          <tr><td>Посадочная площадка</td><td>1250×1250 мм</td></tr>
+          <tr><td>Размер ячеек</td><td>180×180×150 — 300×300×250 мм</td></tr>
+          <tr><td>Кол-во ячеек (макс.)</td><td>6 штук</td></tr>
+          <tr><td>Рабочая температура</td><td>0°C — 50°C</td></tr>
+          <tr><td>Мощность кондиционера</td><td>1500 Вт</td></tr>
+          <tr><td>Мощность ИБП</td><td>1500 Вт</td></tr>
+          <tr><td>Протокол связи</td><td>Modbus TCP</td></tr>
+          <tr><td>Степень защиты</td><td>IP54</td></tr>
+          <tr><td>Мониторинг среды</td><td>Ветер, осадки, температура, видео</td></tr>
+          <tr><td>Режим работы</td><td>Приём и отправка</td></tr>
+          <tr><td>Управление</td><td>Без оператора / дистанционное</td></tr>
+        </table>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="section features-section">
+  <div class="container">
+    <span class="section-label">Возможности системы</span>
+    <h2>Функции и преимущества</h2>
+    <div class="cards-grid">
+      <div class="feature-card">
+        <div class="card-icon">🌙</div>
+        <h3>Круглосуточное дежурство</h3>
+        <p>Автоматизированная логистическая доставка работает в штатном режиме 24 часа в сутки без участия оператора.</p>
+      </div>
+      <div class="feature-card">
+        <div class="card-icon">☁️</div>
+        <h3>Облачный мониторинг 5G+</h3>
+        <p>Платформу контроля дронов можно развернуть в любой точке мира. Задержка в городской среде — менее 100 мс.</p>
+      </div>
+      <div class="feature-card">
+        <div class="card-icon">🛒</div>
+        <h3>Торговая платформа</h3>
+        <p>Поддержка вторичной разработки мини-приложений для приёма заказов. Продавцы вносят товары и подключают магазин за минуты.</p>
+      </div>
+      <div class="feature-card">
+        <div class="card-icon">📡</div>
+        <h3>Наземная станция управления</h3>
+        <p>Многорезервная связь 2.4G и 4G. Единый канал «изображение + данные + телеметрия» на базе полупроводниковых чипов.</p>
+      </div>
+      <div class="feature-card">
+        <div class="card-icon">📦</div>
+        <h3>Умный шкаф без оператора</h3>
+        <p>Приём и отправка грузов без персонала. Бесконтактная передача повышает безопасность и снижает операционные расходы.</p>
+      </div>
+      <div class="feature-card">
+        <div class="card-icon">🔍</div>
+        <h3>Полная отслеживаемость</h3>
+        <p>Каждое событие доставки отслеживается. QR-код груза привязан к дрону — видно, что именно перевозится в любой момент.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SCENARIOS -->
+<section class="section scenarios-section">
+  <div class="container">
+    <span class="section-label">Сценарии применения</span>
+    <h2>Реальная эффективность</h2>
+    <div class="scenario-cards">
+      <div class="scenario-card">
+        <span class="scenario-tag">Сельская местность</span>
+        <h3>Логистика свежих фруктов и овощей</h3>
+        <p>В горных районах дроны заменили наземный транспорт при доставке свежих фруктов из садов на городские рынки.</p>
+        <p style="margin-top:0.5rem; font-size:0.8rem;">Дрон: мультироторный DL-500, грузоподъёмность 50 кг</p>
+        <div class="compare-row">
+          <div class="compare-cell bad">
+            <div class="label">Традиционный</div>
+            <span class="val">63 мин</span>
+            <div style="font-size:0.72rem; color:var(--muted)">26,6 км</div>
+          </div>
+          <div class="compare-cell good">
+            <div class="label">Дрон</div>
+            <span class="val">13 мин</span>
+            <div style="font-size:0.72rem; color:var(--muted)">12 км</div>
+          </div>
+        </div>
+        <div class="efficiency-badge">⚡ Прирост эффективности +65.6%</div>
+      </div>
+
+      <div class="scenario-card">
+        <span class="scenario-tag">Морская доставка</span>
+        <h3>Островная транспортировка</h3>
+        <p>Доставка предметов первой необходимости и свежих морепродуктов на острова. Дрон перелетает пролив напрямую, минуя промежуточные перевалки.</p>
+        <p style="margin-top:0.5rem; font-size:0.8rem;">Дрон: DL-900, IP43, ветер уровня 5, 80 км/ч</p>
+        <div class="compare-row">
+          <div class="compare-cell bad">
+            <div class="label">Традиционный</div>
+            <span class="val">92 мин</span>
+            <div style="font-size:0.72rem; color:var(--muted)">47,8 км</div>
+          </div>
+          <div class="compare-cell good">
+            <div class="label">Дрон</div>
+            <span class="val">17 мин</span>
+            <div style="font-size:0.72rem; color:var(--muted)">7,8 км</div>
+          </div>
+        </div>
+        <div class="efficiency-badge">⚡ Прирост эффективности +74.2%</div>
+      </div>
+
+      <div class="scenario-card">
+        <span class="scenario-tag">Городской пилот</span>
+        <h3>«Низкое небо + Логистика»</h3>
+        <p>Трёхмерное логистическое решение для города. Расширение умных логистических сценариев в экономике низкого неба.</p>
+        <p style="margin-top:0.5rem; font-size:0.8rem;">Пустующие крыши — универсальные дроновые аэропорты</p>
+        <div class="compare-row">
+          <div class="compare-cell bad">
+            <div class="label">Традиционный</div>
+            <span class="val">63 мин</span>
+            <div style="font-size:0.72rem; color:var(--muted)">26,6 км</div>
+          </div>
+          <div class="compare-cell good">
+            <div class="label">Дрон</div>
+            <span class="val">13 мин</span>
+            <div style="font-size:0.72rem; color:var(--muted)">12 км</div>
+          </div>
+        </div>
+        <div class="efficiency-badge">⚡ Прирост эффективности +65.6%</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SAFETY -->
+<section class="section safety-section">
+  <div class="container">
+    <span class="section-label">Меры безопасности</span>
+    <h2>Защита на каждом уровне</h2>
+    <div class="safety-grid">
+      <div class="safety-item">
+        <div class="safety-num">01</div>
+        <h3>Парашют</h3>
+        <p>Аварийный парашют гарантирует безопасное снижение при любых нештатных ситуациях в воздухе.</p>
+      </div>
+      <div class="safety-item">
+        <div class="safety-num">02</div>
+        <h3>Визуальное обнаружение</h3>
+        <p>Система оптического обхода препятствий в реальном времени с имитационным радаром столкновений.</p>
+      </div>
+      <div class="safety-item">
+        <div class="safety-num">03</div>
+        <h3>RTK-позиционирование</h3>
+        <p>Направленное RTK-позиционирование с сантиметровой точностью обеспечивает точность посадки.</p>
+      </div>
+      <div class="safety-item">
+        <div class="safety-num">04</div>
+        <h3>Голосовой модуль</h3>
+        <p>Голосовые оповещения информируют окружающих о работе дрона для повышения безопасности.</p>
+      </div>
+      <div class="safety-item">
+        <div class="safety-num">05</div>
+        <h3>Нейтрализация «чёрных» дронов</h3>
+        <p>Специализированный объект обезвреживания несанкционированных беспилотников в зоне покрытия.</p>
+      </div>
+      <div class="safety-item">
+        <div class="safety-num">06</div>
+        <h3>Метеомониторинг</h3>
+        <p>Постоянный контроль скорости и направления ветра, осадков, температуры и влажности воздуха.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- SYSTEM STRUCTURE -->
+<section class="section system-section">
+  <div class="container">
+    <span class="section-label">Архитектура системы</span>
+    <h2>Структура системного решения</h2>
+    <div class="system-grid">
+      <div class="system-item">
+        <h3>🏗️ Базовое обеспечение</h3>
+        <ul class="sys-list">
+          <li>Обеспечение воздушного пространства — координация и юридическое оформление разрешённых коридоров полётов дронов в соответствии с требованиями авиационных регуляторов.</li>
+          <li>Взлётно-посадочные площадки — оборудование посадочных зон на крышах зданий и открытых территориях с минимальными затратами для создания сети дроновых аэропортов.</li>
+          <li>Площадки для испытания оборудования — специально оснащённые зоны для наземных и лётных испытаний дронов, калибровки датчиков и проверки систем безопасности перед запуском.</li>
+          <li>Усиление навигации в зоне — развёртывание дополнительных RTK-станций и GPS-ретрансляторов для обеспечения сантиметровой точности позиционирования в условиях городской застройки.</li>
+          <li>Единая наземно-воздушная коммуникационная сеть — интегрированная инфраструктура передачи данных, объединяющая наземные узлы и борт дрона в единый канал с задержкой менее 100 мс.</li>
+        </ul>
+      </div>
+      <div class="system-item">
+        <h3>🚁 Ключевые объекты</h3>
+        <ul class="sys-list">
+          <li>Демонстрационная платформа беспилотного транспорта — полигон для показа возможностей системы партнёрам и регуляторам, включая сквозную цепочку от заказа до доставки.</li>
+          <li>Маршрутная сеть низкоатмосферного транспорта — спланированная сеть воздушных коридоров с заданными высотами и приоритетами, охватывающая зону доставки радиусом до 20 км.</li>
+          <li>Грузовой автоматизированный аэропорт — узловой объект приёма, сортировки и отправки грузов без участия персонала, оснащённый умными шкафами и автоматическими зарядными станциями.</li>
+          <li>Объект мониторинга воздушного пространства — центр радарного и визуального контроля всех воздушных объектов в зоне, включая обнаружение несанкционированных дронов.</li>
+          <li>Метеорологическая служба — система сбора и анализа данных о ветре, осадках и видимости для автоматической корректировки маршрутов и принятия решений об отмене вылетов.</li>
+          <li>Служба техобслуживания беспилотников — специализированный персонал и оборудование для планового и аварийного обслуживания дронов, замены аккумуляторов и диагностики бортовых систем.</li>
+        </ul>
+      </div>
+      <div class="system-item">
+        <h3>🖥️ Сервисный центр</h3>
+        <ul class="sys-list">
+          <li>Суперкомпьютерная платформа — высокопроизводительный вычислительный кластер для обработки телеметрии, построения маршрутов и управления одновременными полётами множества дронов в реальном времени.</li>
+          <li>Управление ресурсами воздушных маршрутов — система точного планирования и динамического распределения воздушных коридоров для предотвращения конфликтов и максимизации пропускной способности сети.</li>
+          <li>Функции наземной станции управления — интерфейс оператора с полным обзором флота: карта, телеметрия, видеопоток и возможность ручного вмешательства в любой момент полёта.</li>
+          <li>Режим без оператора и ручное управление — система поддерживает полностью автономный режим по заданным сценариям и ручной режим, переключение между которыми возможно в любое время без прерывания миссии.</li>
+          <li>Привязка дрона к QR-коду груза — каждый груз маркируется уникальным QR-кодом, который автоматически связывается с бортовым номером дрона, обеспечивая полную прозрачность каждой доставки.</li>
+          <li>Отчёты и история маршрутов — архив всех полётов с фильтрацией по времени, маршруту и статусу доставки; данные доступны для анализа и выгружаются в один клик.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="cta-section">
+  <div class="container" style="position:relative; z-index:1;">
+    <span class="section-label" style="color:var(--accent);">Решение готово к развёртыванию</span>
+    <h2>Готовы вывести<br>логистику в небо?</h2>
+    <p>Система конечной беспилотной доставки с покрытием до 20 км, автономными шкафами и облачным мониторингом 5G+ — готова к развёртыванию.</p>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer>
+  <p>© 2024 Беспилотная логистика. Решения в области низкоатмосферной доставки.</p>
+</footer>
+
+</body>
+</html>
